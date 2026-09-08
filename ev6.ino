@@ -1,7 +1,43 @@
+/*
+===============================================================================
+Science Olympiad Electric Vehicle Controller
+Author: Jaeden Inocentes
+
+Description:
+Autonomous differential-drive robot used for Science Olympiad Electric Vehicle.
+
+Features:
+- Gyroscope-based heading estimation
+- Encoder-based odometry
+- PID heading control
+- Velocity control
+- Position control
+- Time-targeted final movement
+- Automatic gyro bias calibration
+
+Hardware:
+- Tektite RotEv
+- Dual DC gearmotors
+- Wheel encoders
+- Gyroscope
+
+Control Architecture:
+
+Localization:
+    Encoders -> Position Estimate
+    Gyroscope -> Heading Estimate
+
+Motion Control:
+    ev(distance (m), target time (s), can distance (m))
+
+===============================================================================
+*/
+
 #include <TektiteRotEv.h>
 
 RotEv rotev;
 
+//Physical Constants
 #define WHEELBASE 3.3f / 100.0f
 #define DIAMETER 5.252f / 100.0f
 #define CIRCUMFERENCE_M (DIAMETER * PI)
@@ -138,12 +174,8 @@ void setup() {
 
 /*
 
-Score calc
+Score Formula (2026)
 Score = 100 + distError * 2 -0.5(110 - canDist) + abs(targetTime - actualTime)
-
-UPenn Score 
-72.85
-// UPenn 7.9m 16.5s
 
 */
 
@@ -167,7 +199,7 @@ void ev(float dist = 7.5f, float targetTime = 14.5f, float canDist = 0.025) {
 
   while (true) {
 
-    //  if (rotev.stopButtonPressed()) break;
+    if (rotev.stopButtonPressed()) break; // comment out this code during competing to prevent stop button hitting can.
     if (distRemaining < 0.005f) break;
 
 
@@ -175,7 +207,6 @@ void ev(float dist = 7.5f, float targetTime = 14.5f, float canDist = 0.025) {
       lateralTarget = initialLateral;
     } else {
       headingIntegral = 0.0;
-      //kiHeading = 0;
       lateralTarget = 0.0f;
     }
 
@@ -185,11 +216,9 @@ void ev(float dist = 7.5f, float targetTime = 14.5f, float canDist = 0.025) {
     float headingCorrection = kpHeading * (lateralError - theta) + headingIntegral * kiHeading + kdHeading * (lateralError - prevLateral) / dT;
 
     if (distRemaining > 1.0f) {
-      // positionalCorrection = pidPosition.ut(dist, axialDist);
       velocityCorrection += dT * kiVel * (targetVelocity - vel);
 
     } else {
-      // positionalCorrection = 0.0f;
 
       rotev.ledWrite(0.0f, 0.1f, 0.1f);
 
