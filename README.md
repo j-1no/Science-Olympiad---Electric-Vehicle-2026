@@ -3,5 +3,5 @@ Code made for the event utilizing PID control and motion profiling while making 
 
 Competition Placements:
 
-5th at SE PA Regionals
-1st at PA States
+- 5th at SE PA Regionals
+- 1st at PA States
